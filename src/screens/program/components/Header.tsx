@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 const Header = ({ navigation }: any) => {
   const goBack = () => navigation.goBack();
+  const navigateToHome = () => navigation.navigate("Home");
   return (
     <View
       flexDir="row"
@@ -35,7 +36,7 @@ const Header = ({ navigation }: any) => {
         />
         <View width={"112px"} height={"40px"}>
           <Image
-            source={require("../../../assets/logo.png")}
+            source={require("../../../../assets/logo.png")}
             alt="Logo"
             resizeMode="contain"
             height="100%"
@@ -48,6 +49,7 @@ const Header = ({ navigation }: any) => {
         variant="ghost"
         px={1}
         _pressed={{ bgColor: "transparent", opacity: 70 }}
+        onPress={navigateToHome}
       >
         <Text color={"primary.300"} bold>
           Done

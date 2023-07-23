@@ -18,7 +18,9 @@ export const nbTheme = extendTheme({
       "300": "#bef4be",
       "400": "#59c059",
       "500": "#ff0000",
+      "600": "#064fb4",
     },
+    bg: "#e6f0ff",
   },
   config: {
     initialColorMode: "light",

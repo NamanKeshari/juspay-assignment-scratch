@@ -11,9 +11,9 @@ const Header = () => {
       py={2.5}
       bgColor={"primary.100"}
     >
-      <View width={"112px"} height={"40px"}>
+      <View ml={10} width={"112px"} height={"40px"}>
         <Image
-          source={require("../../../assets/logo.png")}
+          source={require("../../../../assets/logo.png")}
           alt="Logo"
           resizeMode="contain"
           height="100%"
