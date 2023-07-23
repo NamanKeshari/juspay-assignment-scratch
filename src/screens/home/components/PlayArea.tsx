@@ -1,10 +1,28 @@
-import { Icon, IconButton } from "native-base";
+import { Icon, IconButton, Image } from "native-base";
 import ComponentLayout from "../layout/ComponentLayout";
 import { FontAwesome } from "@expo/vector-icons";
+import { Draggable } from "../../draggable/Draggable";
 
 export default function PlayArea() {
+  const spirits = {
+    cat: require("../../../../assets/scratch-cat.png"),
+    rocket: require("../../../../assets/rocket-spirit.png"),
+  };
+
   return (
-    <ComponentLayout styles={{ flex: 0.65, position: "relative" }}>
+    <ComponentLayout
+      styles={{
+        flex: 0.65,
+        position: "relative",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Draggable
+        spirit={
+          <Image source={spirits.cat} alt={"Cat"} width={12} height={12} />
+        }
+      />
       <IconButton
         icon={
           <Icon as={FontAwesome} name="undo" size={4} color="primary.200" />
