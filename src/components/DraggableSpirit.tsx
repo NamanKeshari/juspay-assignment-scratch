@@ -1,15 +1,12 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Button, View } from "native-base";
 import { Animated, PanResponder } from "react-native";
+import { ISpirit, IValue, IValueProp } from "../interfaces/spirit.interface";
+import { IAction } from "../interfaces/action.interface";
 
-export default function AnimationsScreen2() {
+export default function DraggableSpirit({ spirit }: { spirit: ISpirit }) {
   const pan = useRef(new Animated.ValueXY());
-  const values = useRef({
-    rotation: new Animated.Value(0),
-    x: new Animated.Value(0),
-    y: new Animated.Value(0),
-    scale: new Animated.Value(1),
-  });
+  const values = useRef<IValue>(spirit.value);
   const [panResponder, setPanResponder] = useState<any>();
   useLayoutEffect(() => {
     pan.current.addListener((val) => {
@@ -36,17 +33,14 @@ export default function AnimationsScreen2() {
     );
   }, []);
 
-  const animationArr: {
-    type: "rotation" | "x" | "y" | "scale";
-    value: number;
-  }[][] = [
+  const animationArr: IAction[][] = [
     [{ type: "rotation", value: 100 }],
     [
       { type: "y", value: 100 },
       { type: "x", value: 100 },
     ],
     [{ type: "y", value: 100 }],
-    [{ type: "scale", value: 0.5 }],
+    [{ type: "scale", value: 1 }],
     [{ type: "y", value: -100 }],
     [{ type: "y", value: -100 }],
     [{ type: "x", value: -100 }],
@@ -55,12 +49,7 @@ export default function AnimationsScreen2() {
   const animate = (
     arr: typeof animationArr,
     i: number,
-    obj: {
-      x: number;
-      y: number;
-      rotation: number;
-      scale: number;
-    } = {
+    obj: IValueProp = {
       x: 0,
       y: 0,
       rotation: 0,
@@ -71,7 +60,6 @@ export default function AnimationsScreen2() {
     const curr = arr[i];
     const timings = curr.map((curr) => {
       obj[curr.type] += curr.value;
-      // console.log(obj, curr, values.current?.[curr.type]);
       return Animated.timing(values.current?.[curr.type], {
         toValue: obj[curr.type],
         useNativeDriver: true,
@@ -133,14 +121,20 @@ export default function AnimationsScreen2() {
       <Button
         mt={10}
         onPress={() => {
-          // setInterval(() => {
-          animate(animationArr, 0, {
+          const actions = spirit.actions.action;
+          const obj = {
             x: (values.current.x as any).__getValue(),
             y: (values.current.y as any).__getValue(),
             rotation: (values.current.rotation as any).__getValue(),
             scale: (values.current.scale as any).__getValue(),
-          });
-          // }, animationArr.length * 1000);
+          };
+          if (
+            actions.length > 1 &&
+            (actions[actions.length - 1][0].type as any) === "repeated" &&
+            (actions[actions.length - 1][0].value as any)
+          ) {
+            animate(animationArr, 0, obj);
+          } else animate(animationArr, 0, obj);
         }}
       >
         Start Animation
@@ -155,27 +149,9 @@ export default function AnimationsScreen2() {
 
 // transform
 
-// let updatedVal = {
-//   x: (values.current.x as any).__getValue(),
-//   y: (values.current.y as any).__getValue(),
-//   rotation: (values.current.rotation as any).__getValue(),
-//   scale: (values.current.scale as any).__getValue(),
-// };
-// Animated.loop(
-//   Animated.sequence(
-//     animationArr.map((animate) => {
-//       return Animated.parallel(
-//         animate.map((anim) => {
-//           updatedVal[anim.type] += anim.value;
-
-//           return Animated.timing(values.current?.[anim.type], {
-//             toValue: updatedVal[anim.type],
-//             duration: 1000,
-//             useNativeDriver: true,
-//           });
-//         })
-//       );
-//     })
-//   ),
-//   { resetBeforeIteration: false }
-// ).start();
+// {
+//     rotation: new Animated.Value(0),
+//     x: new Animated.Value(0),
+//     y: new Animated.Value(0),
+//     scale: new Animated.Value(1),
+//   }

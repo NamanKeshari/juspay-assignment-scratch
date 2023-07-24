@@ -1,4 +1,4 @@
-import { useEffect, useState, ReactNode } from "react";
+import { useState, ReactNode, useLayoutEffect } from "react";
 import { StyleSheet, View, Text, PanResponder, Animated } from "react-native";
 
 export const Draggable = ({ spirit }: { spirit?: ReactNode }) => {
@@ -8,7 +8,7 @@ export const Draggable = ({ spirit }: { spirit?: ReactNode }) => {
   const [opacity, setOpacity] = useState(new Animated.Value(1));
   const [panResponder, setPanResponder] = useState<any>();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let _val = { x: 0, y: 0 };
 
     pan.addListener((value) => {
