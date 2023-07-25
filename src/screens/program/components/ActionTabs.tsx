@@ -1,27 +1,45 @@
+import { useAtom, useAtomValue } from "jotai";
+import { useEffect } from "react";
 import { HStack, VStack, Text, Pressable } from "native-base";
-import { useState } from "react";
-import { View } from "react-native";
-
-const FirstRoute = () => (
-  <View style={{ backgroundColor: "#ff4081", flex: 1 }}>
-    <Text>Tab 1</Text>
-  </View>
-);
-
-const SecondRoute = () => (
-  <View style={{ flex: 1, backgroundColor: "#673ab7" }}>
-    <Text>Tab 2</Text>
-  </View>
-);
-
-const Tab = [
-  { title: "Act 1", component: <FirstRoute /> },
-  { title: "Act 2", component: <SecondRoute /> },
-];
+import { selectedActionAtom } from "../../../atoms/actions.atom";
+import spriteAtom, {
+  actionsAtom,
+  selectedAtom,
+} from "../../../atoms/sprite.atom";
+import { RenderActionList } from "./Code";
 
 export default function ActionTabs() {
-  const [index, setIndex] = useState<number>(0);
+  const [index, setIndex] = useAtom(selectedActionAtom);
+  const [actions, setAction] = useAtom(actionsAtom);
+  const selectedSprite = useAtomValue(selectedAtom);
+  const sprites = useAtomValue(spriteAtom);
 
+  const removeFromAction = (i: number) => {
+    setAction((prev) => {
+      const temp = [...prev[index]];
+      temp.splice(i, 1);
+      return prev.map((item, i) => (i === index ? temp : item)) as any;
+    });
+  };
+
+  useEffect(() => {
+    setIndex(sprites[selectedSprite].action);
+  }, []);
+
+  const Tab = [
+    {
+      title: "Act 1",
+      component: (
+        <RenderActionList list={actions[index]} onPress={removeFromAction} />
+      ),
+    },
+    {
+      title: "Act 2",
+      component: (
+        <RenderActionList list={actions[index]} onPress={removeFromAction} />
+      ),
+    },
+  ];
   return (
     <VStack height="100%">
       <HStack height={10}>

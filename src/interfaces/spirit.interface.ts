@@ -1,11 +1,9 @@
-import { IActionObj } from "./action.interface";
 import { Animated } from "react-native";
 
 export interface ISpirit {
   title: string;
-  value: IValue;
-  image: NodeRequire;
-  actions: IActionObj;
+  img: any;
+  action: number;
 }
 
 export interface IValue {
@@ -14,6 +12,7 @@ export interface IValue {
   rotation: Animated.Value;
   scale: Animated.Value;
   sayHello?: Animated.Value;
+  repeat?: any;
 }
 
 export interface IValueProp {
@@ -22,6 +21,5 @@ export interface IValueProp {
   rotation: number;
   scale: number;
   sayHello?: number;
+  repeat?: any;
 }
-
-export type SpiritsType = ISpirit[];

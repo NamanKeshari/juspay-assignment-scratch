@@ -9,10 +9,29 @@ import {
   HStack,
 } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
+import { useAtom, useAtomValue } from "jotai";
+import spriteAtom, { selectedAtom } from "../../../atoms/sprite.atom";
+import { selectedActionAtom } from "../../../atoms/actions.atom";
 
 const Header = ({ navigation }: any) => {
+  const [index, setIndex] = useAtom(selectedActionAtom);
+  const [sprites, setSprites] = useAtom(spriteAtom);
+  const selectedSprite = useAtomValue(selectedAtom);
+
   const goBack = () => navigation.goBack();
-  const navigateToHome = () => navigation.navigate("Home");
+
+  const navigateToHome = () => {
+    if (sprites.length > 0) {
+      setSprites((prev) => {
+        const temp = { ...prev[selectedSprite] };
+        temp.action = index;
+        return prev.map((item, i) => (i === selectedSprite ? temp : item));
+      });
+      setIndex(0);
+    }
+
+    navigation.navigate("Home");
+  };
   return (
     <View
       flexDir="row"

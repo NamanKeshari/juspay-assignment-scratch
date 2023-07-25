@@ -10,7 +10,7 @@ export default function MyStack() {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
-      initialRouteName="Animations"
+      initialRouteName="Home"
     >
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Program" component={ProgramScreen} />

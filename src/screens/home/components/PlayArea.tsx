@@ -1,13 +1,29 @@
-import { Icon, IconButton, Image } from "native-base";
+import { useLayoutEffect } from "react";
+import { Icon, IconButton } from "native-base";
 import ComponentLayout from "../layout/ComponentLayout";
 import { FontAwesome } from "@expo/vector-icons";
-import { Draggable } from "../../draggable/Draggable";
+import spriteAtom, {
+  animatingAtom,
+  resettingAtom,
+} from "../../../atoms/sprite.atom";
+import { useAtom, useSetAtom } from "jotai";
+import DraggableSpirit from "../../../components/DraggableSpirit";
+import { images } from "../../../static-data/images";
 
+const initVals = [
+  {
+    title: "cat",
+    img: images.cat,
+    action: 0,
+  },
+];
 export default function PlayArea() {
-  const spirits = {
-    cat: require("../../../../assets/scratch-cat.png"),
-    rocket: require("../../../../assets/rocket-spirit.png"),
-  };
+  const [sprite, setSprite] = useAtom(spriteAtom);
+  useLayoutEffect(() => {
+    setSprite(initVals);
+  }, []);
+  const [animating, setAnimating] = useAtom(animatingAtom);
+  const setResetting = useSetAtom(resettingAtom);
 
   return (
     <ComponentLayout
@@ -18,15 +34,14 @@ export default function PlayArea() {
         alignItems: "center",
       }}
     >
-      <Draggable
-        spirit={
-          <Image source={spirits.cat} alt={"Cat"} width={12} height={12} />
-        }
-      />
+      {sprite?.map?.((sprite, i) => {
+        return <DraggableSpirit key={i} index={i} spirit={sprite} />;
+      })}
       <IconButton
         icon={
           <Icon as={FontAwesome} name="undo" size={4} color="primary.200" />
         }
+        onPress={() => setResetting(true)}
         bgColor="primary.400"
         _pressed={{ bgColor: "primary.300" }}
         position="absolute"
@@ -39,6 +54,8 @@ export default function PlayArea() {
         icon={
           <Icon as={FontAwesome} name="play" size={4} color="primary.200" />
         }
+        isDisabled={animating}
+        onPress={() => setAnimating(true)}
         bgColor="primary.100"
         _pressed={{ bgColor: "primary.600" }}
         position="absolute"

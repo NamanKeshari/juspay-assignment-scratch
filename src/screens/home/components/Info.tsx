@@ -1,13 +1,24 @@
 import React, { ReactNode } from "react";
 import ComponentLayout from "../layout/ComponentLayout";
 import { Box, HStack, Text } from "native-base";
+import { useAtomValue } from "jotai";
+import spriteAtom, {
+  valuesAtom,
+  selectedAtom,
+} from "../../../atoms/sprite.atom";
 
 export default function Info() {
+  const sprites = useAtomValue(spriteAtom);
+  const values = useAtomValue(valuesAtom);
+  const selected = useAtomValue(selectedAtom);
+  const selectedValues = values[selected] || [0, 0];
+  const currentSprite = sprites[selected];
   const infos: { title: string; value: string | number }[] = [
-    { title: "Spirit", value: "Ball" },
-    { title: "X", value: -13.5 },
-    { title: "Y", value: -79.0 },
+    { title: "Sprite", value: currentSprite?.title },
+    { title: "X", value: selectedValues[0] },
+    { title: "Y", value: selectedValues[1] },
   ];
+
   return (
     <ComponentLayout
       styles={{
@@ -28,7 +39,12 @@ export default function Info() {
 
 const Container = ({ children }: { children: ReactNode }) => {
   return (
-    <HStack space={2} alignItems="center">
+    <HStack
+      space={2}
+      alignItems="center"
+      // justifyContent="center"
+      // flex={0.33}
+    >
       {children}
     </HStack>
   );

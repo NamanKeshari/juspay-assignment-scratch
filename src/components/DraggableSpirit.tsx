@@ -1,15 +1,109 @@
-import { useLayoutEffect, useRef, useState } from "react";
-import { Button, View } from "native-base";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
+import { Image } from "native-base";
 import { Animated, PanResponder } from "react-native";
 import { ISpirit, IValue, IValueProp } from "../interfaces/spirit.interface";
 import { IAction } from "../interfaces/action.interface";
+import {
+  actionsAtom,
+  animatingAtom,
+  resettingAtom,
+  selectedAtom,
+  valuesAtom,
+} from "../atoms/sprite.atom";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
-export default function DraggableSpirit({ spirit }: { spirit: ISpirit }) {
+export default function DraggableSpirit({
+  spirit,
+  index,
+}: {
+  spirit: ISpirit;
+  index: number;
+}) {
   const pan = useRef(new Animated.ValueXY());
-  const values = useRef<IValue>(spirit.value);
+  const values = useRef<IValue>({
+    rotation: new Animated.Value(0),
+    x: new Animated.Value(0),
+    y: new Animated.Value(0),
+    scale: new Animated.Value(1),
+  });
+  const setSelected = useSetAtom(selectedAtom);
+  const [opacity, setOpacity] = useState(new Animated.Value(1));
+  const setValuesAtom = useSetAtom(valuesAtom);
+  const actions = useAtomValue(actionsAtom);
+  const [animating, setAnimating] = useAtom(animatingAtom);
+  const [resetting, setResetting] = useAtom(resettingAtom);
   const [panResponder, setPanResponder] = useState<any>();
+  const resettingRef = useRef(false);
+  const parallelRef = useRef<any>();
+
+  const animate = (
+    arr: IAction[][],
+    i: number,
+    obj: IValueProp = {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      scale: 1,
+    }
+  ) => {
+    if (i >= arr.length) {
+      values.current.x.setValue(obj.x);
+      values.current.y.setValue(obj.y);
+      values.current.rotation.setValue(obj.rotation);
+      values.current.scale.setValue(obj.scale);
+      setValuesAtom((prev) => {
+        const temp = [...prev];
+        temp[index] = [obj.x, obj.y];
+        return temp;
+      });
+      setAnimating(false);
+      return;
+    }
+    const curr = arr[i];
+    if (curr[0].type === "repeat") {
+      setValuesAtom((prev) => {
+        const temp = [...prev];
+        temp[index] = [obj.x, obj.y];
+        return temp;
+      });
+      animate(arr, 0, obj);
+      return;
+    }
+    const timings = curr.map((curr) => {
+      obj[curr.type] += curr.value;
+      return Animated.timing(values.current?.[curr.type], {
+        toValue: obj[curr.type],
+        useNativeDriver: true,
+        duration: 1000,
+      });
+    });
+    const parallel = Animated.parallel(timings);
+    parallelRef.current = parallel;
+    parallel.start(() => {
+      if (resettingRef.current) {
+        resettingRef.current = false;
+        values.current.x.setValue(0);
+        values.current.y.setValue(0);
+        values.current.rotation.setValue(0);
+        values.current.scale.setValue(1);
+        setAnimating(false);
+        return;
+      }
+      animate(arr, i + 1, obj);
+    });
+    if (resettingRef.current === true) {
+      parallel.stop();
+      return;
+    }
+  };
+
   useLayoutEffect(() => {
     pan.current.addListener((val) => {
+      setValuesAtom((prev) => {
+        const temp = [...prev];
+        temp[index] = [val.x, val.y];
+        return temp;
+      });
       values.current.x.setValue(val.x);
       values.current.y.setValue(val.y);
     });
@@ -17,6 +111,7 @@ export default function DraggableSpirit({ spirit }: { spirit: ISpirit }) {
       PanResponder.create({
         onStartShouldSetPanResponder: (e, gesture) => true,
         onPanResponderGrant: (e, gesture) => {
+          setSelected(index);
           pan.current.setOffset({
             x: (values.current.x as any).__getValue(),
             y: (values.current.y as any).__getValue(),
@@ -29,129 +124,92 @@ export default function DraggableSpirit({ spirit }: { spirit: ISpirit }) {
             useNativeDriver: false,
           }
         ),
+        onPanResponderStart: (e, gesture) => {
+          setOpacity(new Animated.Value(0.7));
+        },
+        onPanResponderEnd: (e, gesture) => {
+          setOpacity(new Animated.Value(1));
+        },
       })
     );
   }, []);
 
-  const animationArr: IAction[][] = [
-    [{ type: "rotation", value: 100 }],
-    [
-      { type: "y", value: 100 },
-      { type: "x", value: 100 },
-    ],
-    [{ type: "y", value: 100 }],
-    [{ type: "scale", value: 1 }],
-    [{ type: "y", value: -100 }],
-    [{ type: "y", value: -100 }],
-    [{ type: "x", value: -100 }],
-    [{ type: "rotation", value: 260 }],
-  ];
-  const animate = (
-    arr: typeof animationArr,
-    i: number,
-    obj: IValueProp = {
-      x: 0,
-      y: 0,
-      rotation: 0,
-      scale: 1,
-    }
-  ) => {
-    if (i >= arr.length) return;
-    const curr = arr[i];
-    const timings = curr.map((curr) => {
-      obj[curr.type] += curr.value;
-      return Animated.timing(values.current?.[curr.type], {
-        toValue: obj[curr.type],
-        useNativeDriver: true,
-        duration: 1000,
-      });
+  useEffect(() => {
+    const animationArr: IAction[][] = actions[spirit.action];
+    if (!animating) return;
+    const obj = {
+      x: (values.current.x as any).__getValue(),
+      y: (values.current.y as any).__getValue(),
+      rotation: (values.current.rotation as any).__getValue(),
+      scale: (values.current.scale as any).__getValue(),
+    };
+    animate(animationArr, 0, obj);
+  }, [animating]);
+
+  useEffect(() => {
+    if (!resetting) return;
+    setResetting(false);
+    setValuesAtom((prev) => {
+      const temp = [...prev];
+      temp[index] = [0, 0];
+      return temp;
     });
-    const parallel = Animated.parallel(timings);
-    parallel.start(() => {
-      animate(arr, i + 1, obj);
-      parallel.stop();
-    });
-  };
+    values.current.x.setValue(0);
+    values.current.y.setValue(0);
+    values.current.rotation.setValue(0);
+    values.current.scale.setValue(1);
+    resettingRef.current = true;
+    parallelRef.current?.stop?.();
+  }, [resetting]);
 
   return (
-    <View
-      flex={1}
-      style={{ backgroundColor: "green" }}
-      justifyContent="center"
-      alignItems="center"
+    <Animated.View
+      {...panResponder?.panHandlers}
+      style={[
+        {
+          width: 60,
+          height: 60,
+        },
+        {
+          opacity,
+          transform: [
+            {
+              translateY: values.current.y.interpolate({
+                inputRange: [-1000, 1000],
+                outputRange: [-1000, 1000],
+              }),
+            },
+            {
+              translateX: values.current.x.interpolate({
+                inputRange: [-1000, 1000],
+                outputRange: [-1000, 1000],
+              }),
+            },
+            {
+              rotate: values.current.rotation.interpolate({
+                inputRange: [-1000, 1000],
+                outputRange: ["-1000deg", "1000deg"],
+              }),
+            },
+            {
+              scale: values.current.scale.interpolate({
+                inputRange: [-10, 10],
+                outputRange: [-10, 10],
+              }),
+            },
+          ],
+        },
+      ]}
     >
-      <Animated.View
-        {...panResponder?.panHandlers}
-        style={[
-          {
-            width: 100,
-            height: 100,
-            backgroundColor: "orange",
-          },
-          {
-            transform: [
-              {
-                translateY: values.current.y.interpolate({
-                  inputRange: [-1000, 1000],
-                  outputRange: [-1000, 1000],
-                }),
-              },
-              {
-                translateX: values.current.x.interpolate({
-                  inputRange: [-1000, 1000],
-                  outputRange: [-1000, 1000],
-                }),
-              },
-              {
-                rotate: values.current.rotation.interpolate({
-                  inputRange: [-1000, 1000],
-                  outputRange: ["-1000deg", "1000deg"],
-                }),
-              },
-              {
-                scale: values.current.scale.interpolate({
-                  inputRange: [-10, 10],
-                  outputRange: [-10, 10],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-      <Button
-        mt={10}
-        onPress={() => {
-          const actions = spirit.actions.action;
-          const obj = {
-            x: (values.current.x as any).__getValue(),
-            y: (values.current.y as any).__getValue(),
-            rotation: (values.current.rotation as any).__getValue(),
-            scale: (values.current.scale as any).__getValue(),
-          };
-          if (
-            actions.length > 1 &&
-            (actions[actions.length - 1][0].type as any) === "repeated" &&
-            (actions[actions.length - 1][0].value as any)
-          ) {
-            animate(animationArr, 0, obj);
-          } else animate(animationArr, 0, obj);
+      <Image
+        source={{
+          uri: spirit.img,
+          cache: "reload",
         }}
-      >
-        Start Animation
-      </Button>
-    </View>
+        alt={spirit.title}
+        height="100%"
+        width="100%"
+      />
+    </Animated.View>
   );
 }
-
-// animation reference
-
-// Animated.spring, Animated.timing
-
-// transform
-
-// {
-//     rotation: new Animated.Value(0),
-//     x: new Animated.Value(0),
-//     y: new Animated.Value(0),
-//     scale: new Animated.Value(1),
-//   }

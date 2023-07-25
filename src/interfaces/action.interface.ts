@@ -4,7 +4,7 @@ export interface IActionObj {
 }
 
 export interface IAction {
-  type: "x" | "y" | "rotation" | "scale";
+  type: "x" | "y" | "rotation" | "scale" | "repeat";
   value: number;
 }
 

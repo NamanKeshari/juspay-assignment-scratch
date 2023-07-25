@@ -19,6 +19,7 @@ export const nbTheme = extendTheme({
       "400": "#59c059",
       "500": "#ff0000",
       "600": "#064fb4",
+      "700": "#e34133",
     },
     bg: "#e6f0ff",
   },
