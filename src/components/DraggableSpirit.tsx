@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, useEffect } from "react";
-import { Image } from "native-base";
+import { Image, Text } from "native-base";
 import { Animated, PanResponder } from "react-native";
 import { ISpirit, IValue, IValueProp } from "../interfaces/spirit.interface";
 import { IAction } from "../interfaces/action.interface";
@@ -25,9 +25,11 @@ export default function DraggableSpirit({
     x: new Animated.Value(0),
     y: new Animated.Value(0),
     scale: new Animated.Value(1),
+    sayHello: new Animated.Value(0),
   });
   const setSelected = useSetAtom(selectedAtom);
   const [opacity, setOpacity] = useState(new Animated.Value(1));
+
   const setValuesAtom = useSetAtom(valuesAtom);
   const actions = useAtomValue(actionsAtom);
   const [animating, setAnimating] = useAtom(animatingAtom);
@@ -51,6 +53,7 @@ export default function DraggableSpirit({
       values.current.y.setValue(obj.y);
       values.current.rotation.setValue(obj.rotation);
       values.current.scale.setValue(obj.scale);
+      values.current.sayHello?.setValue(0);
       setValuesAtom((prev) => {
         const temp = [...prev];
         temp[index] = [obj.x, obj.y];
@@ -70,7 +73,8 @@ export default function DraggableSpirit({
       return;
     }
     const timings = curr.map((curr) => {
-      obj[curr.type] += curr.value;
+      if (curr.type === "sayHello") obj[curr.type] = curr.value;
+      else obj[curr.type] += curr.value;
       return Animated.timing(values.current?.[curr.type], {
         toValue: obj[curr.type],
         useNativeDriver: true,
@@ -89,6 +93,8 @@ export default function DraggableSpirit({
         setAnimating(false);
         return;
       }
+      obj.sayHello = 0;
+      values.current.sayHello?.setValue(0);
       animate(arr, i + 1, obj);
     });
     if (resettingRef.current === true) {
@@ -169,6 +175,7 @@ export default function DraggableSpirit({
         {
           width: 60,
           height: 60,
+          position: "relative",
         },
         {
           opacity,
@@ -210,6 +217,24 @@ export default function DraggableSpirit({
         height="100%"
         width="100%"
       />
+      <Animated.View
+        style={{
+          paddingVertical: 4,
+          paddingHorizontal: 8,
+          opacity: values.current.sayHello,
+          backgroundColor: "#4c97ff",
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: 12,
+          position: "absolute",
+          top: -8,
+          right: -20,
+        }}
+      >
+        <Text color="primary.200" fontSize="xs">
+          Hello
+        </Text>
+      </Animated.View>
     </Animated.View>
   );
 }
