@@ -15,16 +15,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.namankesari.juspayassignmentscratch"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon-logo.png",
+        "foregroundImage": "./assets/adaptive-icon1.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.namankesari.juspayassignmentscratch"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "69fb5130-b269-422f-b50f-bea62068d0bc"
+      }
     }
   }
 }

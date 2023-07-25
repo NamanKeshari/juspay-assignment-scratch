@@ -1,9 +1,14 @@
 import { useState, ReactNode, useLayoutEffect } from "react";
 import { StyleSheet, View, Text, PanResponder, Animated } from "react-native";
 
-export const Draggable = ({ spirit }: { spirit?: ReactNode }) => {
+export const Draggable = ({
+  onAdd,
+  children,
+}: {
+  onAdd: any;
+  children: ReactNode;
+}) => {
   const [showDraggable, setShowDraggable] = useState<Boolean>(true);
-  // const [dropAreaValues, setDropAreaValues] = useState(null);
   const [pan, setPan] = useState(new Animated.ValueXY());
   const [opacity, setOpacity] = useState(new Animated.Value(1));
   const [panResponder, setPanResponder] = useState<any>();
@@ -12,7 +17,7 @@ export const Draggable = ({ spirit }: { spirit?: ReactNode }) => {
     let _val = { x: 0, y: 0 };
 
     pan.addListener((value) => {
-      // console.log("moving", value);
+      console.log(_val);
       _val = value;
     });
 
@@ -41,7 +46,10 @@ export const Draggable = ({ spirit }: { spirit?: ReactNode }) => {
               useNativeDriver: true,
               toValue: 0,
               duration: 1000,
-            }).start(() => setShowDraggable(true));
+            }).start(() => {
+              onAdd();
+              setShowDraggable(true);
+            });
           }
         },
       })
@@ -52,77 +60,14 @@ export const Draggable = ({ spirit }: { spirit?: ReactNode }) => {
     return gesture.moveY < 150;
   }
 
-  function renderDraggable() {
-    const panStyle = {
-      transform: pan.getTranslateTransform(),
-    };
-    const style: any[] = [panStyle, { opacity }];
-    if (!spirit) style.push(styles.circle);
-
-    if (showDraggable) {
-      return (
-        <View style={{ position: "absolute" }}>
-          <Animated.View {...panResponder?.panHandlers} style={style}>
-            {spirit}
-          </Animated.View>
-        </View>
-      );
-    }
-  }
+  const panStyle = {
+    transform: pan.getTranslateTransform(),
+  };
+  const style: any[] = [panStyle, { opacity }];
 
   return (
-    <View style={{ width: "20%", alignItems: "center" }}>
-      {renderDraggable()}
-    </View>
+    <Animated.View {...panResponder?.panHandlers} style={style}>
+      {children}
+    </Animated.View>
   );
 };
-
-export default function DraggableScreen() {
-  return (
-    <View style={styles.mainContainer}>
-      <View style={styles.dropZone}>
-        <Text style={styles.text}>Drop the ball here!</Text>
-      </View>
-      <View style={styles.ballContainer} />
-      <View style={styles.row}>
-        <Draggable />
-        <Draggable />
-        <Draggable />
-        <Draggable />
-        <Draggable />
-      </View>
-    </View>
-  );
-}
-
-let CIRCLE_RADIUS = 30;
-const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-  },
-  ballContainer: {
-    height: 200,
-  },
-  circle: {
-    backgroundColor: "skyblue",
-    width: CIRCLE_RADIUS * 2,
-    height: CIRCLE_RADIUS * 2,
-    borderRadius: CIRCLE_RADIUS,
-  },
-  row: {
-    flexDirection: "row",
-  },
-  dropZone: {
-    height: 150,
-    backgroundColor: "#00334d",
-  },
-  text: {
-    marginTop: 25,
-    marginLeft: 5,
-    marginRight: 5,
-    textAlign: "center",
-    color: "#fff",
-    fontSize: 25,
-    fontWeight: "bold",
-  },
-});

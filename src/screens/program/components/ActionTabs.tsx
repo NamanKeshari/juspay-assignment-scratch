@@ -14,7 +14,7 @@ export default function ActionTabs() {
   const selectedSprite = useAtomValue(selectedAtom);
   const sprites = useAtomValue(spriteAtom);
 
-  const removeFromAction = (i: number) => {
+  const removeFromAction = (actionArr: any, i: number) => {
     setAction((prev) => {
       const temp = [...prev[index]];
       temp.splice(i, 1);
