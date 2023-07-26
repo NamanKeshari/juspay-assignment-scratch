@@ -2,9 +2,9 @@ import { Provider as JotaiProvider } from "jotai";
 import { NativeBaseProvider } from "native-base";
 import { nbTheme } from "../config/theme.config";
 import { Suspense } from "react";
-import Loading from "../components/Loading";
 import { NavigationContainer } from "@react-navigation/native";
 import Wrapper from "./Wrapper";
+import Loading from "../components/Loading";
 
 export default function ScratchApp() {
   return (
