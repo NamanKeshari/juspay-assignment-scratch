@@ -113,14 +113,12 @@ export default function DraggableSpirit({
   };
 
   useLayoutEffect(() => {
-    values.current.x.addListener(({ value }) => {});
-    values.current.y.addListener(({ value }) => {
-      // setValuesAtom((prev) => {
-      //   const temp = [...prev];
-      //   (temp[index] ?? [0, 0])[1] = value;
-      //   return temp;
-      // });
-    });
+    // values.current.x.addListener(({ value }) => {
+    //   console.log({ x: value });
+    // });
+    // values.current.y.addListener(({ value }) => {
+    //   console.log({ y: value });
+    // });
     pan.current.addListener((val) => {
       setValuesAtom((prev) => {
         const temp = [...prev];
@@ -178,7 +176,7 @@ export default function DraggableSpirit({
       return temp;
     });
     reset();
-    resettingRef.current = true;
+    if (animating[index]) resettingRef.current = true;
     parallelRef.current?.stop?.();
   }, [resetting]);
 

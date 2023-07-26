@@ -6,7 +6,7 @@ import spriteAtom, {
   actionsAtom,
   selectedAtom,
 } from "../../../atoms/sprite.atom";
-import { RenderActionList } from "./Code";
+import { RenderActionList } from "../../../components/RenderActionList";
 
 export default function ActionTabs() {
   const [index, setIndex] = useAtom(selectedActionAtom);
@@ -41,14 +41,14 @@ export default function ActionTabs() {
     },
   ];
   return (
-    <VStack height="100%">
-      <HStack height={10}>
+    <VStack>
+      <HStack>
         {[0, 1].map((d) => (
           <Pressable
             onPress={() => setIndex(d)}
-            height={10}
             key={d}
             flex={0.5}
+            py={2}
             alignItems="center"
             justifyContent="center"
             bgColor={index === d ? "primary.400" : "gray.500"}

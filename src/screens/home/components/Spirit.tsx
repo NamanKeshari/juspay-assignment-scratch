@@ -1,5 +1,5 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Box, Icon, IconButton, Image, Text, View, ZStack } from "native-base";
 import { TouchableOpacity } from "react-native";
 import spriteAtom, {
@@ -25,11 +25,12 @@ export default function Spirit({
 }) {
   const [selected, setSelected] = useAtom(selectedAtom);
   const [sprite, setSprite] = useAtom(spriteAtom);
+  const animating = useAtomValue(animatingAtom);
   const setValuesAtom = useSetAtom(valuesAtom);
   const setAnimating = useSetAtom(animatingAtom);
   const addAction = () => {
-    setSelected(index);
     navigation.navigate("Program");
+    setSelected(index);
   };
 
   const onRemoveSprite = () => {
@@ -39,7 +40,6 @@ export default function Spirit({
       });
       setValuesAtom((prev) => {
         const temp = prev.filter((sprite, i) => index !== i);
-        console.log(temp);
         return temp;
       });
       setAnimating((prev) => {
@@ -61,6 +61,7 @@ export default function Spirit({
           <Icon as={MaterialIcons} name="delete" size={4} color="primary.200" />
         }
         onPress={onRemoveSprite}
+        isDisabled={animating[index]}
         rounded="full"
         bgColor="primary.500"
         _pressed={{ bgColor: "primary.700" }}

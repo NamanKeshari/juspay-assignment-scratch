@@ -14,23 +14,21 @@ import spriteAtom, { selectedAtom } from "../../../atoms/sprite.atom";
 import { selectedActionAtom } from "../../../atoms/actions.atom";
 
 const Header = ({ navigation }: any) => {
-  const [index, setIndex] = useAtom(selectedActionAtom);
+  const index = useAtomValue(selectedActionAtom);
   const [sprites, setSprites] = useAtom(spriteAtom);
   const selectedSprite = useAtomValue(selectedAtom);
 
   const goBack = () => navigation.goBack();
 
   const navigateToHome = () => {
+    navigation.navigate("Home");
     if (sprites.length > 0) {
       setSprites((prev) => {
         const temp = { ...prev[selectedSprite] };
         temp.action = index;
         return prev.map((item, i) => (i === selectedSprite ? temp : item));
       });
-      setIndex(0);
     }
-
-    navigation.navigate("Home");
   };
   return (
     <View
