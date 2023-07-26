@@ -24,6 +24,9 @@ export default function PlayArea() {
   }, []);
   const [animating, setAnimating] = useAtom(animatingAtom);
   const setResetting = useSetAtom(resettingAtom);
+  const isDisabled = animating.reduce((acc, curr) => acc || curr, false);
+  const onPlay = () => setAnimating(Array(animating.length).fill(true));
+  const onReset = () => setResetting(true);
 
   return (
     <ComponentLayout
@@ -41,7 +44,7 @@ export default function PlayArea() {
         icon={
           <Icon as={FontAwesome} name="undo" size={4} color="primary.200" />
         }
-        onPress={() => setResetting(true)}
+        onPress={onReset}
         bgColor="primary.400"
         _pressed={{ bgColor: "primary.300" }}
         position="absolute"
@@ -54,8 +57,8 @@ export default function PlayArea() {
         icon={
           <Icon as={FontAwesome} name="play" size={4} color="primary.200" />
         }
-        isDisabled={animating}
-        onPress={() => setAnimating(true)}
+        isDisabled={isDisabled}
+        onPress={onPlay}
         bgColor="primary.100"
         _pressed={{ bgColor: "primary.600" }}
         position="absolute"

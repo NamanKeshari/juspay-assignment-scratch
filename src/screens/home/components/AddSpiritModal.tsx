@@ -2,7 +2,11 @@ import { HStack, Image, Modal, ScrollView, Text } from "native-base";
 import { SetStateAction, Dispatch } from "react";
 import { spritesArr } from "../../../static-data/staticData";
 import { useSetAtom } from "jotai";
-import spriteAtom, { selectedAtom } from "../../../atoms/sprite.atom";
+import spriteAtom, {
+  animatingAtom,
+  selectedAtom,
+  valuesAtom,
+} from "../../../atoms/sprite.atom";
 import { TouchableOpacity } from "react-native";
 
 const AddSpiritModal = ({
@@ -14,6 +18,9 @@ const AddSpiritModal = ({
 }) => {
   const setSprites = useSetAtom(spriteAtom);
   const setSelectedSprite = useSetAtom(selectedAtom);
+  const setValuesAtom = useSetAtom(valuesAtom);
+  const setAnimating = useSetAtom(animatingAtom);
+
   const onAdd = (i: number) => {
     let length = 0;
     setSprites((prev) => {
@@ -22,6 +29,12 @@ const AddSpiritModal = ({
       return temp;
     });
     setSelectedSprite(length - 1);
+    setValuesAtom((prev) => {
+      return [...prev, [0, 0]];
+    });
+    setAnimating((prev) => {
+      return [...prev, false];
+    });
     setShowModal(false);
   };
 

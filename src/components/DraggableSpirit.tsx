@@ -38,6 +38,27 @@ export default function DraggableSpirit({
   const resettingRef = useRef(false);
   const parallelRef = useRef<any>();
 
+  const update = (obj: IValueProp) => {
+    values.current.x.setValue(obj.x);
+    values.current.y.setValue(obj.y);
+    values.current.rotation.setValue(obj.rotation);
+    values.current.scale.setValue(obj.scale);
+    values.current.sayHello?.setValue(0);
+    setValuesAtom((prev) => {
+      const temp = [...prev];
+      temp[index] = [obj.x, obj.y];
+      return temp;
+    });
+  };
+
+  const reset = () => {
+    values.current.x.setValue(0);
+    values.current.y.setValue(0);
+    values.current.rotation.setValue(0);
+    values.current.scale.setValue(1);
+    values.current.sayHello?.setValue(0);
+  };
+
   const animate = (
     arr: IAction[][],
     i: number,
@@ -49,26 +70,15 @@ export default function DraggableSpirit({
     }
   ) => {
     if (i >= arr.length) {
-      values.current.x.setValue(obj.x);
-      values.current.y.setValue(obj.y);
-      values.current.rotation.setValue(obj.rotation);
-      values.current.scale.setValue(obj.scale);
-      values.current.sayHello?.setValue(0);
-      setValuesAtom((prev) => {
-        const temp = [...prev];
-        temp[index] = [obj.x, obj.y];
-        return temp;
+      update(obj);
+      setAnimating((prev) => {
+        return prev.map((item, i) => (i === index ? false : item));
       });
-      setAnimating(false);
       return;
     }
     const curr = arr[i];
     if (curr[0].type === "repeat") {
-      setValuesAtom((prev) => {
-        const temp = [...prev];
-        temp[index] = [obj.x, obj.y];
-        return temp;
-      });
+      update(obj);
       animate(arr, 0, obj);
       return;
     }
@@ -86,11 +96,10 @@ export default function DraggableSpirit({
     parallel.start(() => {
       if (resettingRef.current) {
         resettingRef.current = false;
-        values.current.x.setValue(0);
-        values.current.y.setValue(0);
-        values.current.rotation.setValue(0);
-        values.current.scale.setValue(1);
-        setAnimating(false);
+        reset();
+        setAnimating((prev) => {
+          return prev.map((item, i) => (i === index ? false : item));
+        });
         return;
       }
       obj.sayHello = 0;
@@ -104,6 +113,14 @@ export default function DraggableSpirit({
   };
 
   useLayoutEffect(() => {
+    values.current.x.addListener(({ value }) => {});
+    values.current.y.addListener(({ value }) => {
+      // setValuesAtom((prev) => {
+      //   const temp = [...prev];
+      //   (temp[index] ?? [0, 0])[1] = value;
+      //   return temp;
+      // });
+    });
     pan.current.addListener((val) => {
       setValuesAtom((prev) => {
         const temp = [...prev];
@@ -142,7 +159,7 @@ export default function DraggableSpirit({
 
   useEffect(() => {
     const animationArr: IAction[][] = actions[spirit.action];
-    if (!animating) return;
+    if (!animating[index]) return;
     const obj = {
       x: (values.current.x as any).__getValue(),
       y: (values.current.y as any).__getValue(),
@@ -150,7 +167,7 @@ export default function DraggableSpirit({
       scale: (values.current.scale as any).__getValue(),
     };
     animate(animationArr, 0, obj);
-  }, [animating]);
+  }, [animating[index]]);
 
   useEffect(() => {
     if (!resetting) return;
@@ -160,17 +177,15 @@ export default function DraggableSpirit({
       temp[index] = [0, 0];
       return temp;
     });
-    values.current.x.setValue(0);
-    values.current.y.setValue(0);
-    values.current.rotation.setValue(0);
-    values.current.scale.setValue(1);
+    reset();
     resettingRef.current = true;
     parallelRef.current?.stop?.();
   }, [resetting]);
 
+  const props = animating[index] ? {} : { ...panResponder?.panHandlers };
   return (
     <Animated.View
-      {...panResponder?.panHandlers}
+      {...props}
       style={[
         {
           width: 60,

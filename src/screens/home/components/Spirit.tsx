@@ -3,6 +3,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { Box, Icon, IconButton, Image, Text, View, ZStack } from "native-base";
 import { TouchableOpacity } from "react-native";
 import spriteAtom, {
+  animatingAtom,
   selectedAtom,
   valuesAtom,
 } from "../../../atoms/sprite.atom";
@@ -25,6 +26,7 @@ export default function Spirit({
   const [selected, setSelected] = useAtom(selectedAtom);
   const [sprite, setSprite] = useAtom(spriteAtom);
   const setValuesAtom = useSetAtom(valuesAtom);
+  const setAnimating = useSetAtom(animatingAtom);
   const addAction = () => {
     setSelected(index);
     navigation.navigate("Program");
@@ -36,6 +38,11 @@ export default function Spirit({
         return prev.filter((sprite, i) => index !== i);
       });
       setValuesAtom((prev) => {
+        const temp = prev.filter((sprite, i) => index !== i);
+        console.log(temp);
+        return temp;
+      });
+      setAnimating((prev) => {
         return prev.filter((sprite, i) => index !== i);
       });
       setSelected(0);

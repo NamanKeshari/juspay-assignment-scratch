@@ -11,7 +11,7 @@ export default function Info() {
   const sprites = useAtomValue(spriteAtom);
   const values = useAtomValue(valuesAtom);
   const selected = useAtomValue(selectedAtom);
-  const selectedValues = values[selected] || [0, 0];
+  const selectedValues = values[selected];
   const currentSprite = sprites[selected];
   const infos: { title: string; value: string | number }[] = [
     { title: "Sprite", value: currentSprite?.title },
