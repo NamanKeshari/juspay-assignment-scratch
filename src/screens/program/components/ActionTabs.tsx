@@ -1,26 +1,60 @@
 import { useAtom, useAtomValue } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { HStack, VStack, Text, Pressable } from "native-base";
 import { selectedActionAtom } from "../../../atoms/actions.atom";
 import spriteAtom, {
   actionsAtom,
   selectedAtom,
 } from "../../../atoms/sprite.atom";
-import { RenderActionList } from "../../../components/RenderActionList";
+import { RenderActions } from "../../../components/RenderActions";
+import { IAction } from "../../../interfaces/action.interface";
+
+type Item = {
+  key: string;
+  actions: IAction[];
+};
 
 export default function ActionTabs() {
   const [index, setIndex] = useAtom(selectedActionAtom);
-  const [actions, setAction] = useAtom(actionsAtom);
+  const [actions, setActions] = useAtom(actionsAtom);
   const selectedSprite = useAtomValue(selectedAtom);
   const sprites = useAtomValue(spriteAtom);
 
+  const initialData: Item[] = useMemo(
+    () =>
+      actions[index].map((d, index) => {
+        return {
+          key: `item-${index}`,
+          actions: d,
+        };
+      }),
+    [actions, index]
+  );
+
+  const [data, setData] = useState(initialData);
+
   const removeFromAction = (actionArr: any, i: number) => {
-    setAction((prev) => {
+    setActions((prev) => {
       const temp = [...prev[index]];
       temp.splice(i, 1);
       return prev.map((item, i) => (i === index ? temp : item)) as any;
     });
   };
+
+  useEffect(() => {
+    setData(initialData);
+  }, [actions, index]);
+
+  useEffect(() => {
+    return () => {
+      // setActions((prev) => {
+      //   const myActionList = [...data.map(({ actions }) => actions)];
+      //   return prev.map((actionList, i) =>
+      //     i === index ? myActionList : actionList
+      //   );
+      // });
+    };
+  }, [index]);
 
   useEffect(() => {
     setIndex(sprites[selectedSprite].action);
@@ -29,15 +63,9 @@ export default function ActionTabs() {
   const Tab = [
     {
       title: "Act 1",
-      component: (
-        <RenderActionList list={actions[index]} onPress={removeFromAction} />
-      ),
     },
     {
       title: "Act 2",
-      component: (
-        <RenderActionList list={actions[index]} onPress={removeFromAction} />
-      ),
     },
   ];
   return (
@@ -58,7 +86,12 @@ export default function ActionTabs() {
           </Pressable>
         ))}
       </HStack>
-      {Tab[index].component}
+      <RenderActions
+        list={actions[index]}
+        data={data}
+        setData={setData}
+        onPress={removeFromAction}
+      />
     </VStack>
   );
 }

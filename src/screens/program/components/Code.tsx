@@ -25,7 +25,7 @@ export default function Code() {
 
   return (
     <ComponentLayout type="code">
-      <RenderActionList list={actionList} onPress={addToAction} flag />
+      <RenderActionList list={actionList} onPress={addToAction} />
     </ComponentLayout>
   );
 }
