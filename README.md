@@ -9,7 +9,7 @@ To preview and run the project on your device:
   
 Download the working app from here
 
-expo link : https://expo.dev/accounts/namankesari/projects/juspay-assignment-scratch/builds/4db7411b-23ec-478a-8bd0-dcb86da8d4e2
+Expo link : https://expo.dev/accounts/namankesari/projects/juspay-assignment-scratch/builds/355d6b0b-0fae-4731-a5d7-58564d426b68
 
 Just run yarn or npm i in the terminal after cloning this repository to install all the node modules and dependencies for the app. 
 To test it in development environment, run expo start or yarn start in your terminal and it is ready to use.
