@@ -8,4 +8,9 @@ export interface IAction {
   value: number;
 }
 
+export interface IActionItem {
+  key: string;
+  actions: IAction[];
+}
+
 export type ActionsType = IActionObj[];

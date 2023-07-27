@@ -1,5 +1,5 @@
 import ComponentLayout from "../layout/ComponentLayout";
-import { IAction } from "../../../interfaces/action.interface";
+import { IAction, IActionItem } from "../../../interfaces/action.interface";
 import { useAtomValue, useSetAtom } from "jotai";
 import { actionsAtom } from "../../../atoms/sprite.atom";
 import { selectedActionAtom } from "../../../atoms/actions.atom";
@@ -11,12 +11,12 @@ export default function Code() {
   const setAction = useSetAtom(actionsAtom);
   const selectedAction = useAtomValue(selectedActionAtom);
   const addToAction = useCallback(
-    (action: IAction[]) => {
+    (action: IActionItem[]) => {
       setAction((prev) => {
         const temp = [...prev[selectedAction], action];
         return prev.map((item, i) => (i === selectedAction ? temp : item)) as [
-          IAction[][],
-          IAction[][]
+          IActionItem[],
+          IActionItem[]
         ];
       });
     },

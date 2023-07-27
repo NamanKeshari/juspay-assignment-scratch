@@ -71,7 +71,6 @@ export default function AnimationsScreen2() {
     const curr = arr[i];
     const timings = curr.map((curr) => {
       obj[curr.type] += curr.value;
-      // console.log(obj, curr, values.current?.[curr.type]);
       return Animated.timing(values.current?.[curr.type], {
         toValue: obj[curr.type],
         useNativeDriver: true,

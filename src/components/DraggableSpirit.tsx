@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import { Image, Text } from "native-base";
 import { Animated, PanResponder } from "react-native";
 import { ISpirit, IValue, IValueProp } from "../interfaces/spirit.interface";
-import { IAction } from "../interfaces/action.interface";
+import { IActionItem } from "../interfaces/action.interface";
 import {
   actionsAtom,
   animatingAtom,
@@ -60,7 +60,7 @@ export default function DraggableSpirit({
   };
 
   const animate = (
-    arr: IAction[][],
+    arr: IActionItem[],
     i: number,
     obj: IValueProp = {
       x: 0,
@@ -76,7 +76,7 @@ export default function DraggableSpirit({
       });
       return;
     }
-    const curr = arr[i];
+    const curr = arr[i].actions;
     if (curr[0].type === "repeat") {
       update(obj);
       animate(arr, 0, obj);
@@ -156,7 +156,7 @@ export default function DraggableSpirit({
   }, []);
 
   useEffect(() => {
-    const animationArr: IAction[][] = actions[spirit.action];
+    const animationArr: IActionItem[] = actions[spirit.action];
     if (!animating[index]) return;
     const obj = {
       x: (values.current.x as any).__getValue(),

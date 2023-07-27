@@ -1,6 +1,6 @@
 import { Box, Text, VStack } from "native-base";
 import { IAction } from "../interfaces/action.interface";
-import { getText } from "../utils/helper.utils";
+import { getText, random } from "../utils/helper.utils";
 import { Draggable } from "./Draggable";
 
 export function RenderActionList({
@@ -15,7 +15,9 @@ export function RenderActionList({
       {list.map((actionArr, i) => (
         <Draggable
           key={i + " draggable action"}
-          onAdd={() => onPress(actionArr, i)}
+          onAdd={() =>
+            onPress({ key: `${random()} ${i} action`, actions: actionArr }, i)
+          }
         >
           <RenderElement actionArr={actionArr} />
         </Draggable>

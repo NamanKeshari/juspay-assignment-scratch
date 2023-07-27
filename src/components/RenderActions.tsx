@@ -1,5 +1,5 @@
 import { Box, Icon, IconButton, Text, View } from "native-base";
-import { IAction } from "../interfaces/action.interface";
+import { IAction, IActionItem } from "../interfaces/action.interface";
 import { getText } from "../utils/helper.utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import DraggableFlatList, {
@@ -7,42 +7,25 @@ import DraggableFlatList, {
   RenderItemParams,
 } from "react-native-draggable-flatlist";
 import { TouchableOpacity } from "react-native";
-import { useEffect, Dispatch } from "react";
-
-type Item = {
-  key: string;
-  actions: IAction[];
-};
+import { Dispatch } from "react";
 
 export function RenderActions({
   onPress,
-  list,
   data,
   setData,
+  index,
 }: {
   onPress?: any;
-  list: IAction[][];
-  data: Item[];
-  setData: Dispatch<React.SetStateAction<Item[]>>;
+  data: IActionItem[];
+  setData: Dispatch<React.SetStateAction<[IActionItem[], IActionItem[]]>>;
+  index: number;
 }) {
-  useEffect(() => {
-    // if (data) {
-    //   console.log(data.map(({ actions }) => actions));
-    //     setActions((prev) => {
-    //       const myActionList = [...data.map(({ actions }) => actions)];
-    //       return prev.map((actionList, i) =>
-    //         i === index ? myActionList : actionList
-    //       );
-    //     });
-    // }
-  }, []);
-
   const renderItem = ({
     item,
     drag,
     isActive,
     getIndex,
-  }: RenderItemParams<Item>) => {
+  }: RenderItemParams<IActionItem>) => {
     return (
       <ScaleDecorator>
         <TouchableOpacity onLongPress={drag} disabled={isActive}>
@@ -59,10 +42,16 @@ export function RenderActions({
   };
 
   return (
-    <View h={"88%"} pb={4}>
+    <View h={"91%"} borderBottomRadius="md">
       <DraggableFlatList
         data={data}
-        onDragEnd={({ data }) => setData(data)}
+        onDragEnd={({ data }) => {
+          setData((prev) => {
+            const temp = [...prev];
+            temp[index] = data;
+            return temp as [IActionItem[], IActionItem[]];
+          });
+        }}
         keyExtractor={(item) => item.key}
         renderItem={renderItem}
       />
@@ -101,13 +90,13 @@ const ActionItem = ({
           right={-8}
           zIndex={1}
         />
-        {renderElement(actionArr)}
+        {<RenderElement actionArr={actionArr} />}
       </View>
     </View>
   );
 };
 
-const renderElement = (actionArr: IAction[]) => {
+const RenderElement = ({ actionArr }: { actionArr: IAction[] }) => {
   return (
     <Box
       width={"100%"}

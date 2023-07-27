@@ -29,3 +29,6 @@ export function getText(action: IAction) {
     return "Say Hello";
   }
 }
+
+// program to generate random strings
+export const random = () => Math.random().toString(36).substring(2, 7);
